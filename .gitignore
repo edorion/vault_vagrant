@@ -1,3 +1,5 @@
 ## Vault binaries ##
 ####################
 vault_builds/
+.license
+.vagrant/
