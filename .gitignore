@@ -1,5 +1,8 @@
 ## Vault binaries ##
 ####################
 vault_builds/
+consul_builds/
 .license
 .vagrant/
+.DS_store
+ubuntu-bionic-18.04-cloudimg-console.log

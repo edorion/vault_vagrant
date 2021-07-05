@@ -1,0 +1,12 @@
+# Read-only permission on 'secret/data/myapp/*' path
+path "kv/myapp" {
+  capabilities = ["read"]
+}
+
+path "kv-v2/data/myapp/*" {
+  capabilities = ["read"]
+}
+
+path "secret/devsecops/data/*" {
+  capabilities = ["read"]
+}

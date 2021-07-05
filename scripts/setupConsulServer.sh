@@ -8,14 +8,20 @@ export PATH="$PATH:/usr/local/bin"
 echo "Installing dependencies ..."
 apt-get -y install unzip curl
 
-echo "Installing Enterprise Version"
-cp /vagrant/ent/consul-enterprise_*.zip ./consul.zip
-
-unzip consul.zip
-chown root:root consul
-chmod 0755 consul
-mv consul /usr/local/bin
-rm -f consul.zip
+echo "Installing Consul Enterprise version ..."
+CONSUL_VERSION="$CONSUL_VER+ent"
+echo "$CONSUL_VERSION"
+if [[ $(curl -s https://releases.hashicorp.com/consul/ | grep "$CONSUL_VERSION") && $(ls /vagrant/consul_builds | grep "$CONSUL_VERSION") ]]; then
+  ln -s /vagrant/consul_builds/"$CONSUL_VERSION"/consul /usr/local/bin/consul;
+else
+  if curl -s -f -o /vagrant/consul_builds/"$CONSUL_VERSION"/consul.zip --create-dirs https://releases.hashicorp.com/consul/"$CONSUL_VERSION"/consul_"$CONSUL_VERSION"_linux_amd64.zip; then
+    unzip /vagrant/consul_builds/"$CONSUL_VERSION"/consul.zip -d /vagrant/consul_builds/"$CONSUL_VERSION"/
+    rm /vagrant/consul_builds/"$CONSUL_VERSION"/consul.zip
+    ln -s /vagrant/consul_builds/"$CONSUL_VERSION"/consul /usr/local/bin/consul;
+  else
+    echo "####### Consul version not found #########"
+  fi
+fi
 
 echo "Creating Consul service account ..."
 useradd -r -d /etc/consul -s /bin/false consul
@@ -37,20 +43,21 @@ HOSTNAME=$(hostname -s)
 echo "IP Address is ${IP_ADDRESS}  Host Name is ${HOSTNAME}"
 
 cat > /etc/consul/config.d/consul.hcl << EOF
-server                  = true
-datacenter              = "${VAULT_DC}"
-node_name               = "${HOSTNAME}"
-data_dir                = "/var/lib/consul"
-log_file                = "/var/log/consul/consul.log"
-log_level               = "DEBUG"
-enable_syslog           = true 
-acl_enforce_version_8   = false
-ui                      = true
-bind_addr               = "0.0.0.0"
-client_addr             = "0.0.0.0"
-advertise_addr          = "${IP_ADDRESS}"
-bootstrap_expect        = 2 
-retry_join              = [${VAULT_HA_SERVER_IPS}]
+{
+  "server": true,
+  "node_name": "${HOSTNAME}",
+  "datacenter": "${VAULT_DC}",
+  "data_dir": "/var/run/consul/data",
+  "bind_addr": "0.0.0.0",
+  "client_addr": "0.0.0.0",
+  "advertise_addr": "${IP_ADDRESS}",
+  "bootstrap_expect": 3,
+  "retry_join": [${VAULT_HA_SERVER_IPS}],
+  "ui": true,
+  "log_level": "DEBUG",
+  "enable_syslog": true,
+  "acl_enforce_version_8": false
+}
 EOF
 
 chown root:consul /etc/consul/config.d/*

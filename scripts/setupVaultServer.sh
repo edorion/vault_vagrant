@@ -3,16 +3,16 @@
 export PATH=$PATH:/usr/local/bin
 
 #installing vault
+VAULT_VERSION="$VAULT_VER+ent"
+echo "$VAULT_VERSION"
 echo "Installing Vault enterprise version ..."
-if [[ $(curl -s https://releases.hashicorp.com/vault/ | grep "$VAULT_VER"+ent\<) && $(ls /vagrant/vault_builds | grep "$VAULT_VER") ]]; then
-  ln -s /vagrant/vault_builds/1.7.2/vault /usr/local/bin/vault;
+if [[ $(curl -s https://releases.hashicorp.com/vault/ | grep "$VAULT_VERSION") && $(ls /vagrant/vault_builds | grep "$VAULT_VERSION") ]]; then
+  ln -s /vagrant/vault_builds/"$VAULT_VERSION"/vault /usr/local/bin/vault;
 else
-  if curl -s -f -o /vagrant/vault_builds/"$VAULT_VERSION"/vault.zip --create-dirs https://releases.hashicorp.com/vault/"$VAULT_VERSION"+ent/vault_"$VAULT_VERSION"+ent_linux_amd64.zip; then
-    apt update
-    apt install unzip
+  if curl -s -f -o /vagrant/vault_builds/"$VAULT_VERSION"/vault.zip --create-dirs https://releases.hashicorp.com/vault/"$VAULT_VERSION"/vault_"$VAULT_VERSION"_linux_amd64.zip; then
     unzip /vagrant/vault_builds/"$VAULT_VERSION"/vault.zip -d /vagrant/vault_builds/"$VAULT_VERSION"/
     rm /vagrant/vault_builds/"$VAULT_VERSION"/vault.zip
-    ln -s /vagrant/vault_builds/1.7.2/vault /usr/local/bin/vault;
+    ln -s /vagrant/vault_builds/"$VAULT_VERSION"/vault /usr/local/bin/vault;
   else
     echo "####### Vault version not found #########"
   fi
@@ -23,6 +23,8 @@ useradd -r -d /etc/vault -s /bin/false vault
 
 echo "Creating directory structure ..."
 mkdir -p /etc/vault/pki
+mkdir /opt/vault
+chown vault:vault /opt/vault
 chown -R root:vault /etc/vault
 chmod -R 0750 /etc/vault
 
@@ -41,10 +43,15 @@ tee /etc/vault/vault.hcl << EOF
 api_addr = "http://${IP_ADDRESS}:8200"
 cluster_addr = "https://${IP_ADDRESS}:8201"
 ui = true
-storage "consul" {
-  address = "127.0.0.1:8500"
-  path    = "vault/"
+storage "raft" {
+  path = "/opt/vault"
+  node_id = "${HOST}"
 }
+
+#storage "consul" {
+#  address = "127.0.0.1:8500"
+#  path    = "vault/"
+#}
 listener "tcp" {
   address       = "0.0.0.0:8200"
   cluster_addr  = "${IP_ADDRESS}:8201"
@@ -65,7 +72,7 @@ ConditionFileNotEmpty=/etc/vault/vault.hcl
 User=vault
 Group=vault
 PIDFile=/var/run/vault/vault.pid
-ExecStart=/usr/local/bin/vault server -config=/etc/vault/vault.hcl
+ExecStart=/usr/local/bin/vault server -config=/etc/vault/vault.hcl -log-level=trace
 StandardOutput=file:/var/log/vault/vault.log
 StandardError=file:/var/log/vault/vault.log
 ExecReload=/bin/kill -HUP $MAINPID
