@@ -4,7 +4,7 @@
 ### Define environment variables to pass on to provisioner
 
 # Define Vault version
-VAULT_VER = ENV['VAULT_VER'] || "1.7.2"
+VAULT_VER = ENV['VAULT_VER'] || "1.7.3"
 
 # Define COnsul version
 CONSUL_VER = ENV['CONSUL_VER'] || "1.9.6"
@@ -30,9 +30,9 @@ Vagrant.configure("2") do |config|
   (1..3).each do |i|
     config.vm.define "vault#{i}" do |v1|
       v1.vm.hostname = "v#{i}"
-      
+
       v1.vm.network "private_network", ip: VAULT_HA_SERVER_IP_PREFIX+"#{i}"
-#      v1.vm.provision "shell", 
+#      v1.vm.provision "shell",
 #              path: "scripts/setupConsulServer.sh",
 #              env: {'VAULT_HA_SERVER_IPS' => VAULT_HA_SERVER_IPS, 'VAULT_DC' => 'dc1', 'CONSUL_VER' => CONSUL_VER}
 
@@ -44,9 +44,9 @@ Vagrant.configure("2") do |config|
   (1..2).each do |i|
     config.vm.define "vault-dr#{i}" do |v1|
       v1.vm.hostname = "v-dr#{i}"
-      
+
       v1.vm.network "private_network", ip: VAULT_DR_SERVER_IP_PREFIX+"#{i}"
-#      v1.vm.provision "shell", 
+#      v1.vm.provision "shell",
 #              path: "scripts/setupConsulServer.sh",
 #              env: {'VAULT_HA_SERVER_IPS' => VAULT_DR_SERVER_IPS, 'VAULT_DC' => 'dc2', 'CONSUL_VER' => CONSUL_VER}
 
@@ -58,9 +58,9 @@ Vagrant.configure("2") do |config|
   (1..2).each do |i|
     config.vm.define "vault-pr#{i}" do |v1|
       v1.vm.hostname = "v-pr#{i}"
-      
+
       v1.vm.network "private_network", ip: VAULT_REPLICA_SERVER_IP_PREFIX+"#{i}"
-#      v1.vm.provision "shell", 
+#      v1.vm.provision "shell",
 #              path: "scripts/setupConsulServer.sh",
 #              env: {'VAULT_HA_SERVER_IPS' => VAULT_REPLICA_SERVER_IPS, 'VAULT_DC' => 'dc3', 'CONSUL_VER' => CONSUL_VER}
 
