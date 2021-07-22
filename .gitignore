@@ -2,6 +2,7 @@
 ####################
 vault_builds/
 consul_builds/
+certs/*
 .license
 .vagrant/
 .DS_store
