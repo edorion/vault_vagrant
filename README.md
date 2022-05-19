@@ -3,7 +3,7 @@ full raft cluster
 
 
 ### Rough notes
-- Create certs via https://github.com/martinhristov90/Terraform_PKI/blob/master/tls_secondary.tf into a /certs folder
+- Create certs via tls.tf (with thanks to https://github.com/martinhristov90/Terraform_PKI) into a /certs folder
 - Add AWS KMS deets to the vard in the Vagrant file that are presently set to "...."
 - Ignore the consul stuff, it wont work
 - Comment in and out clusters as needed (recomended to leave as 2 unless required to aid in rebuilds)
