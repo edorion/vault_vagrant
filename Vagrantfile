@@ -41,6 +41,7 @@ Vagrant.configure("2") do |config|
     end
     config.vm.define "vault#{i}" do |v1|
       v1.vm.hostname = "v#{i}"
+      v1.vm.synced_folder ".", "/vagrant", owner: "vagrant", group: "vagrant"
       v1.vm.network "private_network", ip: VAULT_HA_SERVER_IP_PREFIX+"#{i}", netmask:"255.0.0.0"
       v1.vm.provision "shell", path: "scripts/setupPrimVaultServer.sh", env: {'VAULT_VER' => VAULT_VER, 'HOST' => "v#{i}", 'AWS_KEY_ID' => AWS_KEY_ID, 'AWS_SECRET' => AWS_SECRET, 'KMS_KEY_ID' => KMS_KEY_ID}
     end
@@ -50,6 +51,7 @@ Vagrant.configure("2") do |config|
   (1..2).each do |i|
     config.vm.define "vault-dr1#{i}" do |v1|
       v1.vm.hostname = "v-dr1#{i}"
+      v1.vm.synced_folder ".", "/vagrant", owner: "vagrant", group: "vagrant"
       v1.vm.network "private_network", ip: VAULT_DR1_SERVER_IP_PREFIX+"#{i}", netmask:"255.0.0.0"
       v1.vm.provision "shell", path: "scripts/setupDrVaultServer.sh", env: {'VAULT_VER' => VAULT_VER, 'HOST' => "v#{i}", 'AWS_KEY_ID' => AWS_KEY_ID, 'AWS_SECRET' => AWS_SECRET, 'KMS_KEY_ID' => KMS_KEY_ID}
     end
