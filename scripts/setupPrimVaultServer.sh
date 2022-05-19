@@ -186,5 +186,8 @@ systemctl daemon-reload
 systemctl enable vault
 systemctl restart vault
 
+### Init Vault
+vault operator init > ~/VaultCreds.txt
+
 ## print servers IP address
 echo "The IP of the host $(hostname) is $(hostname -I | awk '{print $2}')"
