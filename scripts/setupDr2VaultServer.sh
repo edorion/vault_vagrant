@@ -165,6 +165,12 @@ tee /etc/telegraf/telegraf.conf << EOF
 ##  json_timestamp_units = "1s"
 EOF
 
+### Init vault server
+echo testing vault up
+vault status
+while [ $? -ne 2 ]; do echo "still testing"; vault status; done
+vault operator init -key-shares=1 -key-threshold=1 > /home/vagrant/VaultCreds.txt
+vault status
 
 systemctl daemon-reload
 systemctl enable vault
