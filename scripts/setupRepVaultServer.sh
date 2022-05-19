@@ -169,5 +169,12 @@ systemctl daemon-reload
 systemctl enable vault
 systemctl restart vault
 
+### Init vault server
+echo testing vault up
+vault status
+while [ $? -ne 2 ]; do echo "still testing"; vault status; done
+vault operator init -key-shares=1 -key-threshold=1 > /home/vagrant/VaultCreds.txt
+vault status
+
 ## print servers IP address
 echo "The IP of the host $(hostname) is $(hostname -I | awk '{print $2}')"
