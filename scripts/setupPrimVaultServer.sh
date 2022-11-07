@@ -185,6 +185,7 @@ EOF
 systemctl daemon-reload
 systemctl enable vault
 systemctl restart vault
+vault -autocomplete-install
 
 ### Init vault server
 echo testing vault up
